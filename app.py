@@ -6,7 +6,8 @@ app = Flask(__name__)
 
 # INTENTIONAL VULNERABILITY: Hardcoded secret (Gitleaks will catch this)
 DATABASE_PASSWORD = "super_secret_password_123"
-API_KEY = "AKIAIOSFODNN7EXAMPLE"
+API_KEY = os.environ.get("API_KEY", "not-set")
+    
 
 def get_db():
     conn = sqlite3.connect("app.db")
@@ -22,8 +23,9 @@ def get_user():
     username = request.args.get("name")
     conn = get_db()
     cursor = conn.cursor()
-    query = f"SELECT * FROM users WHERE username = '{username}'"
-    cursor.execute(query)
+    query = "SELECT * FROM users WHERE username = ?"
+    cursor.execute(query, (username,))
+    
     result = cursor.fetchone()
     conn.close()
     return str(result)
