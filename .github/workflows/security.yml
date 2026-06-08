@@ -1,3 +1,4 @@
+
 name: DevSecOps Security Pipeline
 
 on:
@@ -30,7 +31,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Run Semgrep SAST scan
-        run: semgrep scan --config auto --sarif --output semgrep.sarif
+        # Added --error flag to force Semgrep to exit with an error code if it finds bugs!
+        run: semgrep scan --config auto --sarif --output semgrep.sarif --error
       - name: Upload Semgrep SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
@@ -51,6 +53,8 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
+          # Added exit-code: '1' to tell Trivy to fail the build if it finds HIGH/CRITICAL CVEs!
+          exit-code: '1'
       - name: Upload Trivy SARIF
         uses: github/codeql-action/upload-sarif@v4
         if: always()
